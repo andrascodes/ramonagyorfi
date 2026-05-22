@@ -1,26 +1,36 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-serif: var(--font-lora);
+  --font-sans: var(--font-poppins);
+
+  /* Brand palette — sampled from the live site computed styles */
+  --color-background: #f2ede4;   /* cream — page bg */
+  --color-foreground: #555946;   /* dark olive — body text on cream */
+  --color-accent: #999a78;       /* sage — buttons, links */
+  --color-panel: #d0c4b1;        /* warmer tan — section panels (testimonial, etc.) */
+  --color-soft: #e1e1e1;         /* light gray — neutral panel bg (How I Work, etc.) */
+  --color-inverse: #f2ede4;      /* cream — text on dark olive */
+  --color-nav-overlay: #555946;  /* dark olive — mobile drawer bg, also dark panels */
+  --color-nav-overlay-fg: #f2ede4;
+
+  --container-max: 1200px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  html,
+  body {
+    background: var(--color-foreground);
   }
-}
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  body {
+    color: var(--color-foreground);
+    font-family: var(--font-serif), Georgia, serif;
+    font-size: 19px;
+    line-height: 1.78;
+  }
+
+  p {
+    text-align: justify;
+  }
 }
