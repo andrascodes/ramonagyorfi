@@ -1,9 +1,32 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import type { ExpandableItem } from "@/content/types";
 import { Container } from "../Container";
+
+/**
+ * Reads `?open=<id>` and triggers the callback. Isolated so it can sit inside
+ * a Suspense boundary — `useSearchParams` otherwise opts the whole page out
+ * of static rendering.
+ */
+function OpenItemSync({
+  ids,
+  onOpen,
+}: {
+  ids: Set<string>;
+  onOpen: (id: string) => void;
+}) {
+  const searchParams = useSearchParams();
+  const requestedId = searchParams.get("open");
+
+  useEffect(() => {
+    if (!requestedId || !ids.has(requestedId)) return;
+    onOpen(requestedId);
+  }, [requestedId, ids, onOpen]);
+
+  return null;
+}
 
 export function ExpandableList({
   heading,
@@ -13,23 +36,22 @@ export function ExpandableList({
   items: ExpandableItem[];
 }) {
   const [openId, setOpenId] = useState<string | null>(null);
-  const searchParams = useSearchParams();
-  const requestedId = searchParams.get("open");
+  const ids = useMemo(() => new Set(items.map((i) => i.id)), [items]);
 
-  useEffect(() => {
-    if (!requestedId) return;
-    const ids = new Set(items.map((i) => i.id));
-    if (!ids.has(requestedId)) return;
-    setOpenId(requestedId);
+  const handleOpen = useCallback((id: string) => {
+    setOpenId(id);
     requestAnimationFrame(() => {
       document
-        .getElementById(`item-${requestedId}`)
+        .getElementById(`item-${id}`)
         ?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
-  }, [requestedId, items]);
+  }, []);
 
   return (
     <section className="py-12 md:py-20">
+      <Suspense fallback={null}>
+        <OpenItemSync ids={ids} onOpen={handleOpen} />
+      </Suspense>
       <Container>
         {heading && (
           <h2 className="mb-12 text-center font-sans font-normal text-[clamp(40px,7vw,80px)] leading-[1.1]">
